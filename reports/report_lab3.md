@@ -19,7 +19,9 @@
 
 ## Implementation description
 ### Lexer class
-This code defines a lexer class that takes a set of production rules as input and extracts the terminal symbols from them. It provides a tokenize method that takes an input string and produces a list of tokens, where each token is a tuple consisting of a type ('TERMINAL' for lowercase letters and 'NON_TERMINAL' for uppercase letters) and the actual symbol. The tokenize method loops over the input string, identifies each character as a terminal or non-terminal symbol based on whether it is a lowercase or uppercase letter, respectively, and adds it to the list of tokens. If the character is neither a lowercase nor an uppercase letter, the input is invalid and an exception is raised.
+The Lexer class defines a list of tuples, each containing a token name and a regular expression pattern that matches the token's syntax. It then provides a tokenize method that takes an input string and iterates through the list of token patterns, attempting to match each one against the input string using regular expressions. When a match is found, the corresponding token name and matched substring are added to a list of tokens.
+
+The Lexer class supports a variety of token types, including parentheses, braces, commas, operators, keywords, identifiers, numbers, strings, whitespace, and comments. If the input string contains an invalid token that does not match any of the provided patterns, a ValueError is raised.
 
 ```python
 import re
@@ -83,11 +85,11 @@ class Lexer:
 
 ```
 ### Tokenize method
-The tokenize method starts with an empty list of tokens, then repeatedly attempts to match the input string with either the terminal or non-terminal token patterns.
-If a match with the terminal token pattern is found, a token tuple is created with the label "TERMINAL" and the matched value as its second element, and then the token is appended to the list of tokens. The input string is then truncated by the length of the matched string to remove the token that has been processed.
-If a match with the non-terminal token pattern is found, a token tuple is created with the label "NON-TERMINAL" and the matched value as its second element, and then the token is appended to the list of tokens. The input string is truncated by the length of the matched string to remove the non-terminal symbol that has been processed.
-If neither pattern matches, the method raises a ValueError with a message indicating that the input string contains an invalid token.
-The method continues this process until the input string is fully consumed, at which point it returns the list of tokens.
+The tokenize method of the Lexer class takes an input string as its argument and returns a list of tokens.
+It works by iterating over the list of token patterns defined in the self.token_patterns attribute of the Lexer instance. For each pattern, the method attempts to match it to the beginning of the input string using a regular expression. If a match is found, a token is created by combining the token type and the matched string, and this token is appended to the list of tokens stored in the self.tokens attribute of the Lexer instance.
+If a match is found, the method updates the input string by removing the portion that was matched. This process is repeated until the entire input string has been processed.
+If no match is found for a portion of the input string, the method raises a ValueError with a message indicating that an invalid token was encountered.
+Finally, the method returns the list of tokens that were generated.
 ```python
      def tokenize(self, input_string):
         while len(input_string) > 0:
