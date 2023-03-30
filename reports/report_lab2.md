@@ -145,7 +145,7 @@ The render function takes a deterministic finite automaton (DFA) object and uses
 
 
 ## Results
-![Alt text](screens/Screenshot_1.jpg)
+![Alt text](screens/Screenshot_4.jpg)
 ![Alt text](screens/Screenshot_2.jpg)
 ## Conclusions
 In conclusion, after I did this lab work I can say that I was able to gain a better understanding of determinism in Finite Automata, conversion from NFA to DFA and Chomsky Hierarchy.
