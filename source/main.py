@@ -6,7 +6,7 @@ from Automaton import Automaton
 from FiniteAutomaton import FiniteAutomaton
 from Grammar import Grammars
 from ChomskyConverter import CNFConverter
-from UnitTester import TestCNFConverter
+from UnitTester import UnitTester
 class Main:
     # Initialize the Main class by setting up a grammar,
     # converting it to a finite automaton, and setting up a FiniteAutomaton object
@@ -107,20 +107,17 @@ print('')
 print('')
 print('-------------------------------------------------------------------LAB4-------------------------------------------------------------------------')
 grammar = {
-        'S': ['aA', 'aB'],
-        'A': ['bS'],
-        'B': ['aC'],
-        'C': ['a', 'bS']
-    }
+            'S': ['aA', 'aB'],
+            'A': ['bS'],
+            'B': ['aC'],
+            'C': ['a', 'bS']
+        }
 
-# Convert the grammar to CNF.
-converter = CNFConverter(grammar)
-cnf_grammar = converter.cnf_grammar
+cnf_converter = CNFConverter(grammar)
+cnf_grammar = cnf_converter.convert_to_cnf()
+print(cnf_grammar)
 
-# Print the CNF grammar.
-for symbol in cnf_grammar:
-    for production in cnf_grammar[symbol]:
-        print(f'{symbol} -> {production}')
+unittest.main()
 
 
 

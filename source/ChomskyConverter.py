@@ -1,84 +1,81 @@
-from typing import List, Dict
-
 class CNFConverter:
-    def __init__(self, grammar: Dict[str, List[str]]):
+    def __init__(self, grammar):
         self.grammar = grammar
-        self.cnf_grammar = self._convert_to_cnf()
+        self.non_terminals = set(grammar.keys())
+        self.terminals = self.get_terminals(grammar)
 
-    def _remove_unit_productions(self):
-        new_grammar = {}
-        for symbol in self.grammar:
-            new_productions = []
-            for production in self.grammar[symbol]:
-                if len(production) == 1 and production[0] in self.grammar:
-                    new_productions.extend(self.grammar[production[0]])
+    def get_terminals(self, grammar):
+        terminals = set()
+        for rules in grammar.values():
+            for rule in rules:
+                for symbol in rule:
+                    if symbol not in self.non_terminals:
+                        terminals.add(symbol)
+        return terminals
+
+    def remove_null_productions(self):
+        for key, rules in self.grammar.items():
+            new_rules = [rule for rule in rules if rule != '']
+            self.grammar[key] = new_rules
+
+    def remove_unit_productions(self):
+        for key, rules in self.grammar.items():
+            new_rules = []
+            for rule in rules:
+                if len(rule) == 1 and rule in self.non_terminals:
+                    new_rules.extend(self.grammar[rule])
                 else:
-                    new_productions.append(production)
-            new_grammar[symbol] = new_productions
-        self.grammar = new_grammar
+                    new_rules.append(rule)
+            self.grammar[key] = new_rules
 
-    def _eliminate_long_productions(self):
-        for symbol in list(self.grammar):
-            for production in self.grammar[symbol]:
-                if len(production) > 2:
-                    self.grammar[symbol].remove(production)
-                    new_symbols = []
-                    for character in production:
-                        if character not in self.grammar:
-                            new_symbol = 'X' + str(len(self.grammar))
-                            self.grammar[new_symbol] = [character]
-                            new_symbols.append(new_symbol)
-                        else:
-                            new_symbols.append(character)
-                    self.grammar[symbol].append(''.join(new_symbols))
+    def replace_terminals_with_non_terminals(self):
+        for key in list(self.grammar.keys()):  # Iterate over a copy of the keys
+            rules = self.grammar[key]
+            new_rules = []
+            for rule in rules:
+                new_rule = []
+                for symbol in rule:
+                    if symbol in self.terminals:
+                        new_non_terminal = f'{symbol.upper()}0'
+                        if new_non_terminal not in self.non_terminals:
+                            self.non_terminals.add(new_non_terminal)
+                            self.grammar[new_non_terminal] = [symbol]
+                        new_rule.append(new_non_terminal)
+                    else:
+                        new_rule.append(symbol)
+                new_rules.append(''.join(new_rule))
+            self.grammar[key] = new_rules
 
-    def _remove_epsilon_productions(self):
-        new_grammar = {}
-        epsilon_symbols = set()
-        for symbol in self.grammar:
-            if "" in self.grammar[symbol]:
-                epsilon_symbols.add(symbol)
-        while epsilon_symbols:
-            symbol = epsilon_symbols.pop()
-            new_productions = []
-            for production in self.grammar[symbol]:
-                if production == "":
-                    continue
-                if symbol in production:
-                    # generate new productions for each possible removal of the symbol
-                    new_productions.extend(
-                        [production.replace(symbol, "", 1)] + [production.replace(symbol, "", i) for i in
-                                                               range(1, len(production))])
+    def split_long_productions(self):
+        new_rules_to_add = {}
+
+        for key in list(self.grammar.keys()):
+            rules = self.grammar[key]
+            new_rules = []
+
+            for rule in rules:
+                if len(rule) > 2:
+                    new_non_terminals = [f'X{key}{i}' for i in range(len(rule) - 2)]
+                    for new_non_terminal in new_non_terminals:
+                        self.non_terminals.add(new_non_terminal)
+
+                    new_rule = rule[0] + new_non_terminals[0]
+                    new_rules_to_add[new_non_terminals[0]] = [rule[0:2]]
+
+                    for i in range(1, len(new_non_terminals)):
+                        new_rules_to_add[new_non_terminals[i]] = [new_non_terminals[i - 1] + rule[i + 1]]
+
+                    new_rules.append(new_non_terminals[-1] + rule[-1])
                 else:
-                    new_productions.append(production)
-            new_productions = list(set(new_productions))
-            new_grammar[symbol] = new_productions
-            for s in new_grammar:
-                if symbol in new_grammar[s]:
-                    if all(x in new_grammar[s] for x in new_grammar[symbol]):
-                        # if all the productions of the symbol are in the productions of s, add s to epsilon_symbols
-                        epsilon_symbols.add(s)
-            self.grammar = new_grammar
+                    new_rules.append(rule)
 
-    def _convert_to_cnf(self):
-        self._remove_unit_productions()
-        self._eliminate_long_productions()
-        new_grammar = {}
-        for symbol in self.grammar:
-            new_productions = []
-            for production in self.grammar[symbol]:
-                if len(production) == 2 and not any(c.islower() for c in production):
-                    new_productions.append(production)
-                elif len(production) == 1 and production.islower():
-                    new_productions.append(production)
-                elif len(production) == 1 and production.isupper():
-                    pass
-                else:
-                    new_symbol = f'X{len(new_grammar)}'
-                    new_grammar[new_symbol] = [production[-1]]
-                    new_productions.append(production[:-1] + new_symbol)
-            new_grammar[symbol] = new_productions
-        return new_grammar
+            self.grammar[key] = new_rules
 
+        self.grammar.update(new_rules_to_add)
 
-
+    def convert_to_cnf(self):
+        self.remove_null_productions()
+        self.remove_unit_productions()
+        self.replace_terminals_with_non_terminals()
+        self.split_long_productions()
+        return self.grammar
