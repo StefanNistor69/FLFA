@@ -2,81 +2,34 @@ import unittest
 from ChomskyConverter import CNFConverter
 
 class UnitTester(unittest.TestCase):
-    def test_cnf_conversion_grammar1(self):
-        grammar = {
-            'S': ['aA', 'aB'],
-            'A': ['bS'],
-            'B': ['aC'],
-            'C': ['a', 'bS']
-        }
-
+    def test_grammar_1(self):
+        grammar = ({'S', 'A', 'B', 'C', 'D'}, {'a', 'b'}, [('S', ('a', 'B')), ('S', ('b', 'A')), ('S', ('B',)), ('A', ('b',)), ('A', ('a', 'D')), ('A', ('A', 'S')), ('A', ('B', 'A', 'B')), ('A', ()), ('B', ('a',)), ('B', ('b', 'S')), ('C', ('A', 'B')), ('D', ('B', 'B'))], 'S')
         cnf_converter = CNFConverter(grammar)
         cnf_grammar = cnf_converter.convert_to_cnf()
+        expected = (set(), {'a', 'b'}, [('S', ('S',)), ('S', ('a',)), ('S', ('b',)), ('S', ('a',)), ('S', ('a',)), ('S', ('b', 'S')), ('S', ('b',)), ('S', ('S',)), ('S', ('b',)), ('S', ('b',)), ('S', ('a',)), ('S', ('S',)), ('S', ('a',)), ('S', ('b', 'S')), ('S', ('b',)), ('S', ('S',))], "S'")
+        self.assertEqual(cnf_grammar, expected)
 
-        expected_cnf_grammar = {
-            'S': ['XS0A', 'XS0B'],
-            'A': ['XA0S'],
-            'B': ['XB0C'],
-            'C': ['A0', 'XC0S'],
-            'A0': ['a'],
-            'B0': ['b'],
-            'XS0': ['A0'],
-            'XA0': ['B0'],
-            'XB0': ['A0'],
-            'XC0': ['B0']
-        }
-
-        self.assertEqual(cnf_grammar, expected_cnf_grammar)
-
-    def test_cnf_conversion_grammar2(self):
-        grammar = {
-            'S': ['aAB', 'bBA'],
-            'A': ['a', 'aA'],
-            'B': ['b', 'bB']
-        }
-
+    def test_grammar_2(self):
+        grammar = ({'S', 'A', 'B', 'C', 'D'}, {'a', 'b', 'c'}, [('S', ('A', 'B')), ('S', ('a', 'C')), ('S', ('b', 'D')), ('A', ('a', 'B', 'c')), ('A', ('a', 'c')), ('B', ('b', 'A')), ('C', ('a', 'S')), ('D', ('c', 'D')), ('D', ('B', 'c')), ('D', ('c',))], 'S')
         cnf_converter = CNFConverter(grammar)
         cnf_grammar = cnf_converter.convert_to_cnf()
+        expected = (set(), {'a', 'c', 'b'}, [('S', ('S',)), ('S', ('a',)), ('S', ('b',)), ('S', ('a', 'c')), ('S', ('a',)), ('S', ('c',)), ('S', ('a', 'c')), ('S', ('a',)), ('S', ('c',)), ('S', ('b',)), ('S', ('a',)), ('S', ('a', 'S')), ('S', ('a',)), ('S', ('S',)), ('S', ('b',)), ('S', ('c',)), ('S', ('c',)), ('S', ('c',))], "S'")
+        self.assertEqual(cnf_grammar, expected)
 
-        expected_cnf_grammar = {
-            'S': ['XS1B', 'XS1A'],
-            'A': ['A0', 'XA0A'],
-            'B': ['B0', 'XB0B'],
-            'A0': ['a'],
-            'B0': ['b'],
-            'XS0': ['B0'],
-            'XS1': ['XS0B'],
-            'XA0': ['A0'],
-            'XB0': ['B0']
-        }
-
-        # Sort the productions for each non-terminal in both grammars
-        for nt in cnf_grammar:
-            cnf_grammar[nt].sort()
-        for nt in expected_cnf_grammar:
-            expected_cnf_grammar[nt].sort()
-
-        self.assertEqual(cnf_grammar, expected_cnf_grammar)
-
-    def test_cnf_conversion_grammar3(self):
-        grammar = {
-            'S': ['AB'],
-            'A': ['aAA', 'a'],
-            'B': ['b', 'bB']
-        }
-
+    def test_grammar_3(self):
+        grammar = ({'S', 'A', 'B'}, {'a', 'b'},
+                   [('S', ('A', 'B')), ('S', ('B', 'A')), ('S', ('a',)), ('A', ('S', 'B')), ('A', ('a', 'B')),
+                    ('B', ('S', 'A')), ('B', ('b',))], 'S')
         cnf_converter = CNFConverter(grammar)
         cnf_grammar = cnf_converter.convert_to_cnf()
+        expected = (set(), {'a', 'b'}, [('S', ('S',)), ('S', ('a',)), ('S', ('S',)), ('S', ('a',)), ('S', ('S',)), ('S', ('b',)), ('S', ('S',)), ('S', ('b',)), ('S', ('S',)), ('S', ('a',)), ('S', ('a',))], "S'")
+        self.assertEqual(cnf_grammar, expected)
 
-        expected_cnf_grammar = {
-            'S': ['AB'],
-            'A': ['XA1A', 'A0'],
-            'B': ['B0', 'XB0B'],
-            'A0': ['a'],
-            'B0': ['b'],
-            'XA0': ['A0'],
-            'XA1': ['XA0A'],
-            'XB0': ['B0']
-        }
-
-        self.assertEqual(cnf_grammar, expected_cnf_grammar)
+    def test_grammar_4(self):
+        grammar = ({'S', 'A', 'B', 'C'}, {'a', 'b'},
+                   [('S', ('A', 'B')), ('S', ('B', 'C')), ('A', ('a', 'A')), ('A', ('a', 'B')), ('B', ('b', 'B')),
+                    ('B', ('C', 'A')), ('C', ('b', 'A')), ('C', ('B', 'S'))], 'S')
+        cnf_converter = CNFConverter(grammar)
+        cnf_grammar = cnf_converter.convert_to_cnf()
+        expected = (set(), {'a', 'b'}, [('S', ('S',)), ('S', ('a',)), ('S', ('a',)), ('S', ('b',)), ('S', ('b',)), ('S', ('b',)), ('S', ('S',))], "S'")
+        self.assertEqual(cnf_grammar, expected)

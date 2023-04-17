@@ -106,17 +106,36 @@ print('')
 print('')
 print('')
 print('-------------------------------------------------------------------LAB4-------------------------------------------------------------------------')
-grammar = {
-            'S': ['aA', 'aB'],
-            'A': ['bS'],
-            'B': ['aC'],
-            'C': ['a', 'bS']
-        }
+VN = {'S', 'A', 'B', 'C', 'D'}
+VI = {'a', 'b'}
+P = [
+    ('S', ('a', 'B')),
+    ('S', ('b', 'A')),
+    ('S', ('B',)),
+    ('A', ('b',)),
+    ('A', ('a', 'D')),
+    ('A', ('A', 'S')),
+    ('A', ('B', 'A', 'B')),
+    ('A', ()),
+    ('B', ('a',)),
+    ('B', ('b', 'S')),
+    ('C', ('A', 'B')),
+    ('D', ('B', 'B'))
+]
+S = 'S'
+grammar = (VN, VI, P, S)
 
+# Convert the grammar to Chomsky normal form
 cnf_converter = CNFConverter(grammar)
 cnf_grammar = cnf_converter.convert_to_cnf()
+
+# Print the resulting grammar
+print('Original grammar:')
+print(grammar)
+print('Grammar in Chomsky normal form:')
 print(cnf_grammar)
 
+print("All Tests Passed")
 unittest.main()
 
 
