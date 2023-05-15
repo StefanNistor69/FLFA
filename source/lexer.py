@@ -49,9 +49,10 @@ class Lexer:
                 match = regex.match(input_string)
                 if match:
                     matched = True
-                    token = (token_type, match.group(0))
-                    self.tokens.append(token)
-                    input_string = input_string[len(token[1]):]
+                    if token_type not in ['WHITESPACE', 'COMMENT']:
+                        token = (token_type, match.group(0))
+                        self.tokens.append(token)
+                    input_string = input_string[len(match.group(0)):]
                     break
             if not matched:
                 raise ValueError(f"Invalid token: {input_string}")

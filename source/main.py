@@ -6,6 +6,7 @@ from Automaton import Automaton
 from FiniteAutomaton import FiniteAutomaton
 from Grammar import Grammars
 from ChomskyConverter import CNFConverter
+from  parser import Parser
 from UnitTester import UnitTester
 class Main:
     # Initialize the Main class by setting up a grammar,
@@ -135,8 +136,16 @@ print(grammar)
 print('Grammar in Chomsky normal form:')
 print(cnf_grammar)
 
-print("All Tests Passed")
-unittest.main()
 
+print('')
+print('')
+print('')
+print('-------------------------------------------------------------------LAB5-------------------------------------------------------------------------')
+
+lexer = Lexer()
+parser = Parser(lexer)
+input_string = "var x = 5;"
+ast = parser.parse(input_string)
+print(ast)
 
 
